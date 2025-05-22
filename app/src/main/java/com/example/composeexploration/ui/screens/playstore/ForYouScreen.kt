@@ -84,9 +84,10 @@ fun BannersCarousel(
 ) {
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { itemsCount })
     
-    LaunchedEffect(key1 = pagerState.currentPage) {
+    LaunchedEffect(key1 = pagerState.settledPage) {
         delay(autoSlideDuration)
-        pagerState.animateScrollToPage((pagerState.currentPage+1) % itemsCount)
+        val nextPage = (pagerState.settledPage+1) % itemsCount
+        pagerState.animateScrollToPage(nextPage)
     }
 
     HorizontalPager(state = pagerState) { page ->

@@ -93,7 +93,7 @@ fun AppTopBar() {
                 painter = painterResource(id = R.drawable.profile),
                 contentDescription = "See Profile",
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(35.dp)
                     .clip(CircleShape)
             )
         }
@@ -203,7 +203,7 @@ fun ContentTabs(
 
     Column (
         modifier = Modifier.padding(
-                top = (topPadding-40.dp),
+                top = (topPadding-25.dp),
             start = horizontalPadding,
             end = horizontalPadding,
             bottom = bottomPadding
