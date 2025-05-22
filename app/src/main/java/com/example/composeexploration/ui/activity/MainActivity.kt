@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.example.composeexploration.ui.screens.playstore.PlayStoreScreen
 import com.example.composeexploration.ui.screens.todolist.ToDoListScreen
 import com.example.composeexploration.ui.theme.ComposeExplorationTheme
 
@@ -14,7 +15,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ComposeExplorationTheme {
-                ToDoListScreen()
+                PlayStoreScreen()
             }
         }
     }

@@ -6,13 +6,23 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -20,6 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,52 +47,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.example.composeexploration.R
+import com.example.composeexploration.data.playstore.AppItem
 import com.example.composeexploration.data.playstore.CarouselItem
+import com.example.composeexploration.data.playstore.getDummyAppItems
+import com.example.composeexploration.data.playstore.getDummyCarouselItems
+import com.example.composeexploration.util.toReadableAppSize
 import kotlinx.coroutines.delay
 
-val carouselItems: List<CarouselItem> = listOf(
-    CarouselItem(
-        id = 0,
-        imageResId = R.drawable.sunset,
-        contentDescription = "Item 1",
-        title = "New apps we love",
-        description = "See our latest picks",
-        additionalDesc = "From the editors"
-    ),
-    CarouselItem(
-        id = 1,
-        imageResId = R.drawable.sunset2,
-        contentDescription = "Item 2",
-        title = "Dive into the exciting world of Short Drama",
-        description = "Apps to stream this summer"
-    ),
-    CarouselItem(
-        id = 2,
-        imageResId = R.drawable.sunset3,
-        contentDescription = "Item 3",
-        title = "Fantastic Journey",
-        additionalDesc = "Ends in 6 days",
-        appName = "Duolingo: Language Lessons",
-        appCompany = "Duolingo",
-        appRating = "4.8",
-        appAgeRestriction = "3+",
-        isAppItem = true
-    ),
-    CarouselItem(
-        id = 3,
-        imageResId = R.drawable.sunset4,
-        contentDescription = "Item 4",
-        title = "Try Adobe Express Premium plan free for 14 days",
-        appName = "Adobe Express: AI Photo, Video",
-        appCompany = "Adobe",
-        appRating = "4.7",
-        appAgeRestriction = "3+",
-        isAppItem = true
-    ),
-)
+val carouselItems = getDummyCarouselItems()
+val appItems = getDummyAppItems()
 
 @Composable
 fun ForYouScreen() {
@@ -90,14 +69,17 @@ fun ForYouScreen() {
             BannersCarousel(itemsCount = carouselItems.size)
         }
         item {
-            SuggestedFypTitle() 
+            SuggestedFypTitle()
+        }
+        item {
+            SuggestedForYouContent()
         }
     }
 }
 
 @Composable
 fun BannersCarousel(
-    autoSlideDuration: Long = 200,
+    autoSlideDuration: Long = 3000,
     itemsCount: Int,
 ) {
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { itemsCount })
@@ -133,7 +115,7 @@ fun BannerItem(index: Int) {
 @Composable
 fun SuggestedFypTitle() {
     Row (
-        modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ){
@@ -143,10 +125,7 @@ fun SuggestedFypTitle() {
         ) {
             Text(
                 text = "Sponsored",
-                style = TextStyle(
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                style = MaterialTheme.typography.labelLarge
             )
             Box(modifier = Modifier
                 .width(5.dp)
@@ -155,10 +134,7 @@ fun SuggestedFypTitle() {
             )
             Text(
                 text = "Suggested For You",
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                style = MaterialTheme.typography.titleLarge
             )
         }
         IconButton(onClick = { /*TODO*/ }) {
@@ -166,6 +142,88 @@ fun SuggestedFypTitle() {
                 imageVector = Icons.Filled.MoreVert,
                 contentDescription = "More"
             )
+        }
+    }
+}
+
+@Composable
+fun SuggestedForYouContent() {
+    val grouppedItems = appItems.chunked(3)
+
+    LazyRow (
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(grouppedItems) { group ->
+            Column (
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+                modifier = Modifier.wrapContentWidth().padding(end = 24.dp)
+            ) {
+                group.forEach { item ->
+                    Row (
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Card (
+                            modifier = Modifier.width(60.dp).height(60.dp),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            AsyncImage(
+                                model = item.imageString,
+                                contentDescription = "app logo",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                        Column (
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = item.name,
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            Row (
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                item.categoryList.forEachIndexed { index, category ->
+                                    Text(
+                                        text = category,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.Gray,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    if (index < (item.categoryList.size-1)) {
+                                        Box(modifier = Modifier
+                                            .width(3.dp)
+                                            .height(3.dp)
+                                            .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                        )
+                                    }
+                                }
+                            }
+                            Row (verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = item.rating.toString(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.Gray
+                                )
+                                Spacer(modifier = Modifier.width(3.dp))
+                                Icon(
+                                    Icons.Filled.Star,
+                                    contentDescription = "rating",
+                                    modifier = Modifier.size(9.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = item.appSize.toReadableAppSize(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.Gray
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
